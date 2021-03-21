@@ -1,0 +1,411 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 75ec61d..b312646 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -21,5 +21,9 @@[m [mDATABASE_URL=postgresql://[user]:[password]@[host]:[port]/[dbname][m
+ # Setup database[m
+ [m
+ 1. python db init[m
+[31m-2. python db migrate[m
+[31m-3. python db upgrade[m
+\ No newline at end of file[m
+[32m+[m[32m1. python db migrate[m
+[32m+[m[32m1. python db upgrade[m
+[32m+[m
+[32m+[m[32m# Run unit tests[m
+[32m+[m
+[32m+[m[32m1. docker run --rm -d -p 5432:5432 --name=postgres-flask -e POSTGRES_PASSWORD=password -e POSTGRES_DB=flask  postgres:13[m
+\ No newline at end of file[m
+[1mdiff --git a/app/app.py b/app/app.py[m
+[1mindex c7ab428..60b7f69 100644[m
+[1m--- a/app/app.py[m
+[1m+++ b/app/app.py[m
+[36m@@ -1,5 +1,3 @@[m
+[31m-from .models import db[m
+[31m-from flask_sqlalchemy import SQLAlchemy[m
+ from flask_migrate import Migrate[m
+ from dotenv import load_dotenv[m
+ import os[m
+[36m@@ -13,8 +11,6 @@[m [mdef create_app(test_config=None):[m
+     app = Flask(__name__, instance_relative_config=True)[m
+     app.config.from_mapping([m
+         SECRET_KEY=os.getenv('SECRET_KEY'),[m
+[31m-        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL'),[m
+[31m-        SQLALCHEMY_TRACK_MODIFICATIONS = False[m
+     )[m
+ [m
+     db.init_app(app)[m
+[1mdiff --git a/app/models.py b/app/models.py[m
+[1mdeleted file mode 100644[m
+[1mindex 7cd88e2..0000000[m
+[1m--- a/app/models.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,14 +0,0 @@[m
+[31m-from flask_sqlalchemy import SQLAlchemy[m
+[31m- [m
+[31m-db = SQLAlchemy()[m
+[31m- [m
+[31m-class User(db.Model):[m
+[31m-    __tablename__ = 'user'[m
+[31m-    [m
+[31m-    id = db.Column(db.Integer, primary_key=True)[m
+[31m-    email = db.Column(db.String(50))[m
+[31m-    password = db.Column(db.String(64))[m
+[31m- [m
+[31m-    def __init__(self, email, password):[m
+[31m-        self.email = email[m
+[31m-        self.password = password[m
+[1mdiff --git a/app/user.py b/app/user.py[m
+[1mindex ff37052..ec84ae2 100644[m
+[1m--- a/app/user.py[m
+[1m+++ b/app/user.py[m
+[36m@@ -1,8 +1,22 @@[m
+[32m+[m[32mfrom app.exceptions import UserNotFoundError[m
+[32m+[m[32mfrom dataclasses import dataclass[m
+ [m
+[32m+[m[32m@dataclass[m
+[32m+[m[32mclass User:[m
+[32m+[m[32m    id: int[m
+[32m+[m[32m    username: str[m
+[32m+[m[32m    email: str[m
+[32m+[m[32m    profile_text: str[m
+ [m
+[32m+[m[32mdef get_by_email(conn, email):[m
+[32m+[m[32m    with conn.cursor() as curs:[m
+[32m+[m[32m        curs.execute("SELECT id, username, email, profile_text FROM users WHERE email = %s", (email,))[m
+[32m+[m[32m        row = curs.fetchone()[m
+[32m+[m
+[32m+[m[32m    if row is None:[m
+[32m+[m[32m        raise UserNotFoundError[m
+[32m+[m[32m    return User(row[0], row[1], row[2], row[3])[m
+ [m
+[31m-def get_by_email():[m
+[31m-    pass[m
+ [m
+ def create():[m
+     pass[m
+\ No newline at end of file[m
+[1mdiff --git a/migrations/README b/migrations/README[m
+[1mdeleted file mode 100644[m
+[1mindex 98e4f9c..0000000[m
+[1m--- a/migrations/README[m
+[1m+++ /dev/null[m
+[36m@@ -1 +0,0 @@[m
+[31m-Generic single-database configuration.[m
+\ No newline at end of file[m
+[1mdiff --git a/migrations/alembic.ini b/migrations/alembic.ini[m
+[1mdeleted file mode 100644[m
+[1mindex ec9d45c..0000000[m
+[1m--- a/migrations/alembic.ini[m
+[1m+++ /dev/null[m
+[36m@@ -1,50 +0,0 @@[m
+[31m-# A generic, single database configuration.[m
+[31m-[m
+[31m-[alembic][m
+[31m-# template used to generate migration files[m
+[31m-# file_template = %%(rev)s_%%(slug)s[m
+[31m-[m
+[31m-# set to 'true' to run the environment during[m
+[31m-# the 'revision' command, regardless of autogenerate[m
+[31m-# revision_environment = false[m
+[31m-[m
+[31m-[m
+[31m-# Logging configuration[m
+[31m-[loggers][m
+[31m-keys = root,sqlalchemy,alembic,flask_migrate[m
+[31m-[m
+[31m-[handlers][m
+[31m-keys = console[m
+[31m-[m
+[31m-[formatters][m
+[31m-keys = generic[m
+[31m-[m
+[31m-[logger_root][m
+[31m-level = WARN[m
+[31m-handlers = console[m
+[31m-qualname =[m
+[31m-[m
+[31m-[logger_sqlalchemy][m
+[31m-level = WARN[m
+[31m-handlers =[m
+[31m-qualname = sqlalchemy.engine[m
+[31m-[m
+[31m-[logger_alembic][m
+[31m-level = INFO[m
+[31m-handlers =[m
+[31m-qualname = alembic[m
+[31m-[m
+[31m-[logger_flask_migrate][m
+[31m-level = INFO[m
+[31m-handlers =[m
+[31m-qualname = flask_migrate[m
+[31m-[m
+[31m-[handler_console][m
+[31m-class = StreamHandler[m
+[31m-args = (sys.stderr,)[m
+[31m-level = NOTSET[m
+[31m-formatter = generic[m
+[31m-[m
+[31m-[formatter_generic][m
+[31m-format = %(levelname)-5.5s [%(name)s] %(message)s[m
+[31m-datefmt = %H:%M:%S[m
+[1mdiff --git a/migrations/env.py b/migrations/env.py[m
+[1mdeleted file mode 100644[m
+[1mindex 42438a5..0000000[m
+[1m--- a/migrations/env.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,90 +0,0 @@[m
+[31m-from __future__ import with_statement[m
+[31m-[m
+[31m-import logging[m
+[31m-from logging.config import fileConfig[m
+[31m-[m
+[31m-from flask import current_app[m
+[31m-[m
+[31m-from alembic import context[m
+[31m-[m
+[31m-# this is the Alembic Config object, which provides[m
+[31m-# access to the values within the .ini file in use.[m
+[31m-config = context.config[m
+[31m-[m
+[31m-# Interpret the config file for Python logging.[m
+[31m-# This line sets up loggers basically.[m
+[31m-fileConfig(config.config_file_name)[m
+[31m-logger = logging.getLogger('alembic.env')[m
+[31m-[m
+[31m-# add your model's MetaData object here[m
+[31m-# for 'autogenerate' support[m
+[31m-# from myapp import mymodel[m
+[31m-# target_metadata = mymodel.Base.metadata[m
+[31m-config.set_main_option([m
+[31m-    'sqlalchemy.url',[m
+[31m-    str(current_app.extensions['migrate'].db.engine.url).replace('%', '%%'))[m
+[31m-target_metadata = current_app.extensions['migrate'].db.metadata[m
+[31m-[m
+[31m-# other values from the config, defined by the needs of env.py,[m
+[31m-# can be acquired:[m
+[31m-# my_important_option = config.get_main_option("my_important_option")[m
+[31m-# ... etc.[m
+[31m-[m
+[31m-[m
+[31m-def run_migrations_offline():[m
+[31m-    """Run migrations in 'offline' mode.[m
+[31m-[m
+[31m-    This configures the context with just a URL[m
+[31m-    and not an Engine, though an Engine is acceptable[m
+[31m-    here as well.  By skipping the Engine creation[m
+[31m-    we don't even need a DBAPI to be available.[m
+[31m-[m
+[31m-    Calls to context.execute() here emit the given string to the[m
+[31m-    script output.[m
+[31m-[m
+[31m-    """[m
+[31m-    url = config.get_main_option("sqlalchemy.url")[m
+[31m-    context.configure([m
+[31m-        url=url, target_metadata=target_metadata, literal_binds=True[m
+[31m-    )[m
+[31m-[m
+[31m-    with context.begin_transaction():[m
+[31m-        context.run_migrations()[m
+[31m-[m
+[31m-[m
+[31m-def run_migrations_online():[m
+[31m-    """Run migrations in 'online' mode.[m
+[31m-[m
+[31m-    In this scenario we need to create an Engine[m
+[31m-    and associate a connection with the context.[m
+[31m-[m
+[31m-    """[m
+[31m-[m
+[31m-    # this callback is used to prevent an auto-migration from being generated[m
+[31m-    # when there are no changes to the schema[m
+[31m-    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html[m
+[31m-    def process_revision_directives(context, revision, directives):[m
+[31m-        if getattr(config.cmd_opts, 'autogenerate', False):[m
+[31m-            script = directives[0][m
+[31m-            if script.upgrade_ops.is_empty():[m
+[31m-                directives[:] = [][m
+[31m-                logger.info('No changes in schema detected.')[m
+[31m-[m
+[31m-    connectable = current_app.extensions['migrate'].db.engine[m
+[31m-[m
+[31m-    with connectable.connect() as connection:[m
+[31m-        context.configure([m
+[31m-            connection=connection,[m
+[31m-            target_metadata=target_metadata,[m
+[31m-            process_revision_directives=process_revision_directives,[m
+[31m-            **current_app.extensions['migrate'].configure_args[m
+[31m-        )[m
+[31m-[m
+[31m-        with context.begin_transaction():[m
+[31m-            context.run_migrations()[m
+[31m-[m
+[31m-[m
+[31m-if context.is_offline_mode():[m
+[31m-    run_migrations_offline()[m
+[31m-else:[m
+[31m-    run_migrations_online()[m
+[1mdiff --git a/migrations/script.py.mako b/migrations/script.py.mako[m
+[1mdeleted file mode 100644[m
+[1mindex 2c01563..0000000[m
+[1m--- a/migrations/script.py.mako[m
+[1m+++ /dev/null[m
+[36m@@ -1,24 +0,0 @@[m
+[31m-"""${message}[m
+[31m-[m
+[31m-Revision ID: ${up_revision}[m
+[31m-Revises: ${down_revision | comma,n}[m
+[31m-Create Date: ${create_date}[m
+[31m-[m
+[31m-"""[m
+[31m-from alembic import op[m
+[31m-import sqlalchemy as sa[m
+[31m-${imports if imports else ""}[m
+[31m-[m
+[31m-# revision identifiers, used by Alembic.[m
+[31m-revision = ${repr(up_revision)}[m
+[31m-down_revision = ${repr(down_revision)}[m
+[31m-branch_labels = ${repr(branch_labels)}[m
+[31m-depends_on = ${repr(depends_on)}[m
+[31m-[m
+[31m-[m
+[31m-def upgrade():[m
+[31m-    ${upgrades if upgrades else "pass"}[m
+[31m-[m
+[31m-[m
+[31m-def downgrade():[m
+[31m-    ${downgrades if downgrades else "pass"}[m
+[1mdiff --git a/migrations/versions/ab36beb8ba51_.py b/migrations/versions/ab36beb8ba51_.py[m
+[1mdeleted file mode 100644[m
+[1mindex be5c084..0000000[m
+[1m--- a/migrations/versions/ab36beb8ba51_.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,33 +0,0 @@[m
+[31m-"""empty message[m
+[31m-[m
+[31m-Revision ID: ab36beb8ba51[m
+[31m-Revises: [m
+[31m-Create Date: 2021-03-20 14:54:01.514873[m
+[31m-[m
+[31m-"""[m
+[31m-from alembic import op[m
+[31m-import sqlalchemy as sa[m
+[31m-[m
+[31m-[m
+[31m-# revision identifiers, used by Alembic.[m
+[31m-revision = 'ab36beb8ba51'[m
+[31m-down_revision = None[m
+[31m-branch_labels = None[m
+[31m-depends_on = None[m
+[31m-[m
+[31m-[m
+[31m-def upgrade():[m
+[31m-    # ### commands auto generated by Alembic - please adjust! ###[m
+[31m-    op.create_table('user',[m
+[31m-    sa.Column('id', sa.Integer(), nullable=False),[m
+[31m-    sa.Column('email', sa.String(length=50), nullable=True),[m
+[31m-    sa.Column('password', sa.String(length=64), nullable=True),[m
+[31m-    sa.PrimaryKeyConstraint('id')[m
+[31m-    )[m
+[31m-    # ### end Alembic commands ###[m
+[31m-[m
+[31m-[m
+[31m-def downgrade():[m
+[31m-    # ### commands auto generated by Alembic - please adjust! ###[m
+[31m-    op.drop_table('user')[m
+[31m-    # ### end Alembic commands ###[m
+[1mdiff --git a/requirements.txt b/requirements.txt[m
+[1mindex 90c51c3..c7a9018 100644[m
+[1m--- a/requirements.txt[m
+[1m+++ b/requirements.txt[m
+[36m@@ -1,17 +1,20 @@[m
+[31m-alembic==1.5.7[m
+[32m+[m[32mattrs==20.3.0[m
+ click==7.1.2[m
+ Flask==1.1.2[m
+[31m-Flask-Migrate==2.7.0[m
+[31m-Flask-SQLAlchemy==2.5.1[m
+ greenlet==1.0.0[m
+[32m+[m[32miniconfig==1.1.1[m
+ itsdangerous==1.1.0[m
+ Jinja2==2.11.3[m
+[31m-Mako==1.1.4[m
+ MarkupSafe==1.1.1[m
+[32m+[m[32mpackaging==20.9[m
+[32m+[m[32mpluggy==0.13.1[m
+ psycopg2-binary==2.8.6[m
+[32m+[m[32mpy==1.10.0[m
+[32m+[m[32mpyparsing==2.4.7[m
+[32m+[m[32mpytest==6.2.2[m
+ python-dateutil==2.8.1[m
+ python-dotenv==0.15.0[m
+ python-editor==1.0.4[m
+ six==1.15.0[m
+[31m-SQLAlchemy==1.4.2[m
+[32m+[m[32mtoml==0.10.2[m
+ Werkzeug==1.0.1[m
+[1mdiff --git a/test/test_user_service.py b/test/test_user_service.py[m
+[1mindex e26d171..338cecd 100644[m
+[1m--- a/test/test_user_service.py[m
+[1m+++ b/test/test_user_service.py[m
+[36m@@ -1,16 +1,55 @@[m
+ import app.user[m
+ import pytest[m
+[32m+[m[32mfrom app import user[m
+[32m+[m[32mfrom app.exceptions import UserNotFoundError[m
+[32m+[m[32mimport psycopg2[m
+[32m+[m[32mfrom psycopg2 import DatabaseError, DataError[m
+ [m
+ # Given that the email is valid, username is valid and the email is not taken by another user and the password is strong enough[m
+ # When the user creates a new account[m
+ # Then the user receives an Okay response[m
+ # And an activation email is send[m
+ [m
+[32m+[m[32m@pytest.fixture()[m
+[32m+[m[32mdef conn():[m
+[32m+[m[32m    conn = psycopg2.connect("user=postgres password=password host=localhost")[m
+[32m+[m[32m    create_tables(conn)[m
+[32m+[m[32m    yield conn[m
+[32m+[m[32m    empty_tables(conn)[m
+[32m+[m[32m    conn.close()[m
+ [m
+[31m-def test_get_user():[m
+[31m-    # TODO: setup database[m
+[32m+[m[32mdef create_tables(conn):[m
+[32m+[m[32m    cursor = conn.cursor()[m
+[32m+[m[32m    with open("database.sql") as dbf:[m
+[32m+[m[32m        tables = dbf.read()[m
+[32m+[m[32m        cursor.execute(tables)[m
+[32m+[m[32m        conn.commit()[m
+[32m+[m[32m    cursor.close()[m
+ [m
+[32m+[m[32mdef empty_tables(conn):[m
+[32m+[m[32m    cursor = conn.cursor()[m
+[32m+[m[32m    cursor.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")[m
+[32m+[m[32m    conn.commit()[m
+[32m+[m
+[32m+[m[32mdef test_get_user_by_email(conn):[m
+[32m+[m[32m    email = "john@example.com"[m
+[32m+[m
+[32m+[m[32m    cursor = conn.cursor()[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))[m
+[32m+[m[32m        conn.commit()[m
+[32m+[m[32m        cursor.close()[m
+[32m+[m[32m    except DataError as e:[m
+[32m+[m[32m        pytest.fail(e)[m
+[32m+[m[32m    except DatabaseError as e:[m
+[32m+[m[32m        pytest.fail(e)[m
+[32m+[m
+[32m+[m[32m    u = user.get_by_email(conn, email)[m
+[32m+[m
+[32m+[m[32m    assert u.email == email[m
+[32m+[m
+[32m+[m[32mdef test_get_nonexisting_user_by_email(conn):[m
+     email = "john@example.com"[m
+[31m-    user = user.get_by_email(email)[m
+ [m
+[31m-    assert user.email == email[m
+\ No newline at end of file[m
+[32m+[m[32m    with pytest.raises(UserNotFoundError):[m
+[32m+[m[32m        user.get_by_email(conn, email)[m
