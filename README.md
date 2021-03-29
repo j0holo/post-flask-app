@@ -17,5 +17,5 @@ SECRET_KEY=secret_key
 
 # Run unit tests
 
-1. docker run --rm -d -p 5432:5432 --name=postgres-flask -e POSTGRES_PASSWORD=password -e POSTGRES_DB=flask  postgres:13
-1. pytest
+1. `docker run --rm -d -p 5432:5432 --name=postgres-flask -e POSTGRES_PASSWORD=password -e POSTGRES_DB=flask  postgres:13`
+1. `pytest`
