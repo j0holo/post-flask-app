@@ -34,11 +34,9 @@ def test_create_new_account(conn):
     password = "password"
     profile_text = "lorem ipsum"
 
-    cursor = conn.cursor()
     try:
         user.create(conn, username, email, password, profile_text)
         conn.commit()
-        cursor.close()
     except DataError as e:
         pytest.fail(e)
     except DatabaseError as e:
@@ -56,11 +54,9 @@ def test_create_new_account_and_password_is_encrypted(conn):
     password = "password"
     profile_text = "lorem ipsum"
 
-    cursor = conn.cursor()
     try:
         user.create(conn, username, email, password, profile_text)
         conn.commit()
-        cursor.close()
     except DataError as e:
         pytest.fail(e)
     except DatabaseError as e:
