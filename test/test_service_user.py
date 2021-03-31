@@ -45,3 +45,18 @@ def test_create_user_invalid_email(conn):
 
     with pytest.raises(InvalidEmail):
         user_service.create(conn, "x", invalid_email, "x", "x", "")
+
+def test_update_user_password(conn):
+    email = "john@example.com"
+    new_password = "NewPassword"
+
+    try:
+        user_postgres.create(conn, "x", email, "x", "x")
+        user_service.update_password(conn, email, new_password)
+        conn.commit()
+    except DataError as e:
+        pytest.fail(e)
+    except DatabaseError as e:
+        pytest.fail(e)
+
+    assert user_postgres.check_password(conn, email, new_password)

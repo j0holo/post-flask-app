@@ -13,3 +13,6 @@ def create(conn, username, email, password, password_repeat, profile_text):
 
 def email_is_valid(email) -> bool:
     return email_regex.search(email)
+
+def update_password(conn, email, new_password):
+    user.update_password(conn, email, new_password)
