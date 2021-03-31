@@ -13,7 +13,7 @@ class User:
     profile_text: str
 
 
-def get_by_email(conn, email):
+def get_by_email(conn, email) -> User:
     with conn.cursor() as curs:
         curs.execute("SELECT id, username, email, profile_text FROM users WHERE email = %s", (email,))
         row = curs.fetchone()
@@ -51,3 +51,13 @@ def update_password(conn, email, new_password):
 
     with conn.cursor() as curs:
         curs.execute("UPDATE users SET password = %s WHERE email = %s", (password_hash, email))
+
+
+def get_by_username(conn, username) -> User:
+    with conn.cursor() as curs:
+        curs.execute("SELECT id, username, email, profile_text FROM users WHERE username = %s", (username,))
+        row = curs.fetchone()
+
+    if row is None:
+        raise UserNotFoundError
+    return User(row[0], row[1], row[2], row[3])

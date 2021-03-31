@@ -16,3 +16,7 @@ def email_is_valid(email) -> bool:
 
 def update_password(conn, email, new_password):
     user.update_password(conn, email, new_password)
+
+
+def get_profile(conn, username) -> user.User:
+    return user.get_by_username(conn, username)
