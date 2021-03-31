@@ -1,6 +1,7 @@
 import pytest
 import psycopg2
 
+
 @pytest.fixture()
 def conn():
     conn = psycopg2.connect("user=postgres password=password host=localhost")
@@ -9,6 +10,7 @@ def conn():
     empty_tables(conn)
     conn.close()
 
+
 def create_tables(conn):
     cursor = conn.cursor()
     with open("database.sql") as dbf:
@@ -16,6 +18,7 @@ def create_tables(conn):
         cursor.execute(tables)
         conn.commit()
     cursor.close()
+
 
 def empty_tables(conn):
     cursor = conn.cursor()

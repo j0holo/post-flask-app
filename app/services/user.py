@@ -4,6 +4,7 @@ import re
 
 email_regex = re.compile(r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$')
 
+
 def create(conn, username, email, password, password_repeat, profile_text):
     if password != password_repeat:
         raise PasswordsDoNotMatch
@@ -11,8 +12,10 @@ def create(conn, username, email, password, password_repeat, profile_text):
         raise InvalidEmail
     user.create(conn, username, email, password, profile_text)
 
+
 def email_is_valid(email) -> bool:
     return email_regex.search(email)
+
 
 def update_password(conn, email, new_password):
     user.update_password(conn, email, new_password)

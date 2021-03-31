@@ -1,4 +1,4 @@
-from app.exceptions import UserNotFoundError, IncorrectPassword
+from app.exceptions import UserNotFoundError
 from dataclasses import dataclass
 import bcrypt
 

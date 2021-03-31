@@ -2,7 +2,9 @@ from flask import Blueprint, current_app, request
 from app.services import user
 import psycopg2
 import logging
+
 user_blueprint = Blueprint('user_blueprint', __name__)
+
 
 @user_blueprint.route('/', methods=['POST'])
 def create():
