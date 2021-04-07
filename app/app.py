@@ -1,9 +1,10 @@
-from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
 from flask import Flask
+from .routes import user
 
-
+# TODO: We are not using dotenv right now.
+# Change it or drop it.
 load_dotenv()
 
 
@@ -11,10 +12,8 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.getenv('SECRET_KEY'),
+        DSN=os.getenv('DSN'),
     )
-
-    db.init_app(app)
-    migrate = Migrate(app, db)
 
     # ensure the instance folder exists
     try:
@@ -22,4 +21,5 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    app.register_blueprint(user.user_blueprint)
     return app

@@ -1,5 +1,14 @@
 class UserNotFoundError(Exception):
     pass
 
-class PostNotFoundError(Exception):
+
+class IncorrectPassword(Exception):
+    pass
+
+
+class PasswordsDoNotMatch(Exception):
+    pass
+
+
+class InvalidEmail(Exception):
     pass
