@@ -3,10 +3,6 @@ import os
 from flask import Flask
 from .routes import user
 
-# TODO: We are not using dotenv right now.
-# Change it or drop it.
-load_dotenv()
-
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
