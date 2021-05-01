@@ -1,19 +1,7 @@
 from psycopg2.extras import DictCursor
 from psycopg2.extensions import connection
-from .exceptions import PostNotFoundError
-from dataclasses import dataclass
-from time import time
-
-
-@dataclass
-class Post:
-    id: int
-    title: str
-    slug: str
-    author: int
-    posted_at: time
-    updated_at: time
-    content: str
+from app.exceptions import PostNotFoundError
+from app.postgres.post import Post
 
 
 def get_post_by_slug(connection: connection, slug: str, author: int):

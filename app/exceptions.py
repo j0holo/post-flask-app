@@ -12,3 +12,7 @@ class PasswordsDoNotMatch(Exception):
 
 class InvalidEmail(Exception):
     pass
+
+
+class PostNotFoundError(Exception):
+    pass
