@@ -37,6 +37,9 @@ def test_create_user(conn):
 
 def test_email_is_valid():
     assert user_service.email_is_valid("john@example.com")
+    assert user_service.email_is_valid("1john@example.com")
+    assert user_service.email_is_valid(".john@example.com")
+    assert not user_service.email_is_valid("!john@example.com")
 
 
 def test_email_is_invalid():
