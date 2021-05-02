@@ -12,10 +12,10 @@ def test_get_post_by_slug(conn):
     user.create(conn, username, "testuser@gmail.com", "123456", "123456", "profile text")
     author = user.get_profile(conn, username)
     post_service.create(conn, author.id, title, content)
-    post = post_service.get_post_by_slug(conn, slug, author.id)
-    
+    post = post_service.get_post_by_slug(conn, username, slug)
+
     assert post.slug == slug
-    assert post.author == author.id
+    assert post.author == username
     assert post.content == content
     assert post.title == title
 
@@ -25,12 +25,15 @@ def test_create_post(conn):
     title = "Pytest test"
     slug = "pytest-test"
     content = "foo"
-    user.create(conn, "username", "username@gmail.com", "123456", "123456", "profile")
+    username = "username"
+
+    user.create(conn, username, "username@gmail.com", "123456", "123456", "profile")
     post_service.create(conn, author, title, content)
-    post = post_service.get_post_by_slug(conn, slug, author)
+    post = post_service.get_post_by_slug(conn, username, slug)
+
     assert post.title == title
     assert post.slug == slug
-    assert post.author == author
+    assert post.author == username
     assert post.content == content
 
 def test_update_post(conn):
@@ -41,13 +44,14 @@ def test_update_post(conn):
     new_title = "Pytest test 2"
     new_slug = "pytest-test-2"
     new_content = "bar"
+    username = "username"
 
-    user.create(conn, "username", "username@gmail.com", "123456", "123456", "profile")
+    user.create(conn, username, "username@gmail.com", "123456", "123456", "profile")
     post_service.create(conn, author, old_title, old_content)
-    old_post = post_service.get_post_by_slug(conn, old_slug, author)
+    old_post = post_service.get_post_by_slug(conn, username, old_slug)
     
     post_service.create(conn, author, new_title, new_content)
-    new_post = post_service.get_post_by_slug(conn, new_slug, author)
+    new_post = post_service.get_post_by_slug(conn, username, new_slug)
     
     assert not new_post.content == old_post.content
     assert not new_post.title == old_post.title
