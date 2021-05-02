@@ -2,13 +2,14 @@ from psycopg2.extras import DictCursor
 from psycopg2.extensions import connection
 from app.exceptions import PostNotFoundError
 from app.postgres.post import Post
+from slugify import slugify
 
 
 def generate_slug(title: str) -> str:
-    return title.replace(" ", "-").lower()
+    return slugify(title)
 
 
-def create_post(conn: connection, author: int, title: str, content: str):
+def create(conn: connection, author: int, title: str, content: str):
     with conn.cursor() as cursor:
         query = """
             INSERT INTO posts (title, slug, author, content)
@@ -17,7 +18,7 @@ def create_post(conn: connection, author: int, title: str, content: str):
         cursor.execute(query, (title, generate_slug(title), author, content))
     
 
-def update_post(conn: connection, post_id: int, title: str, content: str):
+def update(conn: connection, post_id: int, title: str, content: str):
     with conn.cursor() as cursor:
         query = "UPDATE posts SET title=%s, content=%s WHERE id=%s"
         cursor.execute(query, (title, content, post_id))
