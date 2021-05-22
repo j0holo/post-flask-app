@@ -4,10 +4,12 @@
 python -c "import secrets;print(secrets.token_urlsafe(50))"
 ```
 
-# .env sample
+# .env sample for local testing
 
 ```bash
 SECRET_KEY=secret_key
+# assumes the same docker database as used for unit tests
+DSN="user=postgres password=password host=localhost"
 ```
 
 # Manually installed dependencies
