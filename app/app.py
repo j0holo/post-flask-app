@@ -2,10 +2,7 @@ from dotenv import load_dotenv
 import os
 from flask import Flask
 from .routes import user
-
-# TODO: We are not using dotenv right now.
-# Change it or drop it.
-load_dotenv()
+feat/post-use-cases
 
 
 def create_app(test_config=None):
