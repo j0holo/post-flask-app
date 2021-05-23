@@ -1,7 +1,6 @@
 import pytest
 from app.postgres import user
 from app.exceptions import UserNotFoundError
-import psycopg2
 from psycopg2 import DatabaseError, DataError
 
 def test_get_user_by_email(conn):
