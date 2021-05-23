@@ -17,14 +17,15 @@ def unsubscribe(conn, user_id, author_id):
     with conn.cursor() as curs:
         curs.execute("DELETE FROM subscriptions WHERE user_id = %s AND author = %s", (user_id, author_id))
 
-def get_authors(conn, user_id) -> List[Subscription]:
+def get_authors_and_posts(conn, user_id) -> List[Subscription]:
     with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute("""SELECT u.username AS username, p.id AS post_id, title, slug, posted_at, updated_at FROM subscriptions AS s
         INNER JOIN users AS u ON u.id = s.author
         INNER JOIN posts AS p ON p.author = s.author
-        ORDER BY posted_at""")
+        WHERE s.user_id = %s
+        ORDER BY posted_at ASC""", (user_id,))
 
-        rows = curs.fetchmany()
+        rows = curs.fetchall()
 
         subscriptions = list()
 
@@ -47,3 +48,20 @@ def get_authors(conn, user_id) -> List[Subscription]:
             ))
 
     return subscriptions
+
+def get_authors(conn, user_id) -> List[str]:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
+        curs.execute("""SELECT u.username AS username
+        FROM subscriptions AS s
+        INNER JOIN users AS u ON u.id = s.author
+        WHERE s.user_id = %s
+        ORDER BY username ASC""", (user_id,))
+
+        rows = curs.fetchall()
+
+        authors = list()
+
+        for row in rows:
+            authors.append(row[0])
+
+    return authors

@@ -42,7 +42,7 @@ def test_unsubscribe(conn):
 
     subscription.unsubscribe(conn, user1.id, user2.id)
 
-def test_get_authors(conn):
+def test_get_authors_and_posts(conn):
     user1 = user.User(0, "user1", "john@example.com", "")
     user2 = user.User(0, "user2", "karen@example.com", "")
 
@@ -59,7 +59,7 @@ def test_get_authors(conn):
         subscription.subscribe(conn, user1.id, user2.id)
         conn.commit()
 
-        subscriptions = subscription.get_authors(conn, user1.id)
+        subscriptions = subscription.get_authors_and_posts(conn, user1.id)
     except DataError as e:
         pytest.fail(e)
     except DatabaseError as e:
@@ -69,4 +69,33 @@ def test_get_authors(conn):
         assert sub.author == user2.username
         for p in sub.posts:
             assert p.author == user2.username
+            assert p.title in ["first post", "second post"]
             assert p.content == "content"
+
+def test_get_authors(conn):
+    user1 = user.User(0, "user1", "john@example.com", "")
+    user2 = user.User(0, "user2", "karen@example.com", "")
+    user3 = user.User(0, "user3", "dan@example.com", "")
+
+    try:
+        user.create(conn, user1.username, user1.email, "password", "")
+        user.create(conn, user2.username, user2.email, "password", "")
+        user.create(conn, user3.username, user3.email, "password", "")
+
+        user1 = user.get_by_email(conn, user1.email)
+        user2 = user.get_by_email(conn, user2.email)
+        user3 = user.get_by_email(conn, user3.email)
+
+        subscription.subscribe(conn, user1.id, user2.id)
+        subscription.subscribe(conn, user1.id, user3.id)
+        conn.commit()
+
+        authors = subscription.get_authors(conn, user1.id)
+    except DataError as e:
+        pytest.fail(e)
+    except DatabaseError as e:
+        pytest.fail(e)
+
+    assert "user2" in authors
+    assert "user3" in authors
+    assert "user1" not in authors
