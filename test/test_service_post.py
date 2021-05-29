@@ -1,6 +1,4 @@
-import pytest
 from app.services import post as post_service, user
-from psycopg2 import DatabaseError, DataError
 
 
 def test_get_post_by_slug(conn):
@@ -8,7 +6,7 @@ def test_get_post_by_slug(conn):
     slug = post_service.generate_slug(title)
     username = 'testuser'
     content = "BLA BLA BLA"
-    
+
     user.create(conn, username, "testuser@gmail.com", "123456", "123456", "profile text")
     author = user.get_profile(conn, username)
     post_service.create(conn, author.id, title, content)
@@ -49,10 +47,10 @@ def test_update_post(conn):
     user.create(conn, username, "username@gmail.com", "123456", "123456", "profile")
     post_service.create(conn, author, old_title, old_content)
     old_post = post_service.get_post_by_slug(conn, username, old_slug)
-    
+
     post_service.create(conn, author, new_title, new_content)
     new_post = post_service.get_post_by_slug(conn, username, new_slug)
-    
+
     assert not new_post.content == old_post.content
     assert not new_post.title == old_post.title
     assert not new_post.content == old_post.content
@@ -62,7 +60,7 @@ def test_generate_slug():
     temp = [
         {
             'title': "this is WEIRD FuNcTion",
-            'want': "this-is-weird-function" 
+            'want': "this-is-weird-function"
         },
         {
             'title': "#my title <>&#@*(&#!(",

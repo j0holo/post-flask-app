@@ -16,7 +16,7 @@ def create(conn: connection, author: int, title: str, content: str):
             VALUES (%s, %s, %s, %s)
         """
         cursor.execute(query, (title, generate_slug(title), author, content))
-    
+
 
 def update(conn: connection, post_id: int, title: str, content: str):
     with conn.cursor() as cursor:
@@ -27,7 +27,7 @@ def update(conn: connection, post_id: int, title: str, content: str):
 def get_post_by_slug(conn: connection, username: str, slug: str):
     with conn.cursor(cursor_factory=DictCursor) as curs:
         query = """
-            SELECT posts.id, posts.title, posts.slug, 
+            SELECT posts.id, posts.title, posts.slug,
             posts.posted_at, posts.updated_at, posts.content, users.username author
             FROM posts
             JOIN users ON users.id = posts.author
@@ -40,11 +40,11 @@ def get_post_by_slug(conn: connection, username: str, slug: str):
         raise PostNotFoundError
 
     return Post(
-        row['id'], 
-        row['title'], 
-        row['slug'], 
-        row['author'], 
-        row['posted_at'], 
-        row['updated_at'], 
+        row['id'],
+        row['title'],
+        row['slug'],
+        row['author'],
+        row['posted_at'],
+        row['updated_at'],
         row['content']
     )
