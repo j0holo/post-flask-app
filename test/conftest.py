@@ -22,5 +22,6 @@ def create_tables(conn):
 
 def empty_tables(conn):
     cursor = conn.cursor()
-    cursor.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+    cursor.execute(
+        "TRUNCATE TABLE users, posts, posts_tags, tags, subscriptions RESTART IDENTITY CASCADE")
     conn.commit()
