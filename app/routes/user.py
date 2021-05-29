@@ -5,6 +5,8 @@ import logging
 
 user_blueprint = Blueprint('user_blueprint', __name__)
 
+# POST /users/
+
 
 @user_blueprint.route('/', methods=['POST'])
 def create():
@@ -18,6 +20,11 @@ def create():
 
     # TODO: Catch exceptions and return a appropriate response.
     try:
-        user.create(conn, username, email, password, password_repeat, profile_text)
+        user.create(conn, username, email, password,
+                    password_repeat, profile_text)
     except Exception as e:
         logging.info(e)
+        return catch_exception(e).error
+
+    # TODO: Replace this with the real message
+    return success_response_message
