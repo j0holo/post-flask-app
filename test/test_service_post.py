@@ -136,6 +136,58 @@ def test_if_total_posts_of_search_posts_when_provide_username_is_less_than_total
     assert len(rows) > len(posts)
 
 
+def test_user_search_for_post_by_specifc_tag_then_return_posts_with_this_specifc_tag(conn):
+    # Create two users
+    username1 = 'cool_name_1'
+    email1 = 'coolname1@gmail.com'
+    username2 = 'cool_name_2'
+    email2 = 'coolname2@gmail.com'
+    password = '123'
+    password_repeat = '123'
+    profile_text = 'this is some random profile text'
+    user.create(
+        conn, username1, email1, password, password_repeat, profile_text)
+
+    # Get the two created users
+    user1 = user.get_profile(conn, username1)
+
+    # Create 2 posts
+    random_title1 = 'title 1'
+    random_title2 = 'title 2'
+    random_content = 'content'
+    post_service.create(
+        conn, user1.id, random_title1, random_content)
+    post_service.create(
+        conn, user1.id, random_title2, random_content)
+
+    # Create 2 tags
+    with conn.cursor(cursor_factory=DictCursor) as cur:
+        tag1 = 'ble-ble'
+        tag2 = 'ble-bl1'
+        query = "INSERT INTO tags (tag) VALUES (%s)"
+        cur.execute(query, (tag1, ))
+        cur.execute(query, (tag2, ))
+
+    # Create 2 posts_tags
+    with conn.cursor(cursor_factory=DictCursor) as cur:
+        tag_id_1 = 1
+        post_id_1 = 1
+        tag_id_2 = 2
+        post_id_2 = 2
+        query = "INSERT INTO posts_tags (tag_id, post_id) VALUES (%s, %s)"
+        cur.execute(query, (tag_id_1, post_id_1))
+        cur.execute(query, (tag_id_2, post_id_2))
+
+    tag_searching_for = 'ble-ble'
+
+    posts = post_service.get_posts_by_tag(conn, tag_searching_for)
+
+    assert len(posts) == 1
+
+    for post in posts:
+        assert post.title == random_title1
+
+
 def test_generate_slug():
     temp = [
         {
