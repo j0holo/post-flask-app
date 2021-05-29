@@ -27,7 +27,7 @@ def update(conn: connection, post_id: int, title: str, content: str):
 def get_post_by_slug(conn: connection, username: str, slug: str):
     with conn.cursor(cursor_factory=DictCursor) as curs:
         query = """
-            SELECT posts.id, posts.title, posts.slug, 
+            SELECT posts.id, posts.title, posts.slug,
             posts.posted_at, posts.updated_at, posts.content, users.username author
             FROM posts
             JOIN users ON users.id = posts.author
@@ -48,7 +48,6 @@ def get_post_by_slug(conn: connection, username: str, slug: str):
         row['updated_at'],
         row['content']
     )
-
 
 def get_posts_by_author(conn, author: str) -> [Post]:
     with conn.cursor(cursor_factory=DictCursor) as cur:

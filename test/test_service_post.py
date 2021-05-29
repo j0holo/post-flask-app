@@ -1,7 +1,7 @@
-import pytest
 from app.services import post as post_service, user
 from psycopg2 import DatabaseError, DataError
 from psycopg2.extras import DictCursor
+
 
 
 def test_get_post_by_slug(conn):
@@ -10,8 +10,8 @@ def test_get_post_by_slug(conn):
     username = 'testuser'
     content = "BLA BLA BLA"
 
-    user.create(conn, username, "testuser@gmail.com",
-                "123456", "123456", "profile text")
+
+    user.create(conn, username, "testuser@gmail.com", "123456", "123456", "profile text")
     author = user.get_profile(conn, username)
     post_service.create(conn, author.id, title, content)
     post = post_service.get_post_by_slug(conn, username, slug)
