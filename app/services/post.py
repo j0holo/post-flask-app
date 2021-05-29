@@ -48,3 +48,51 @@ def get_post_by_slug(conn: connection, username: str, slug: str):
         row['updated_at'],
         row['content']
     )
+
+def get_posts_by_author(conn, author: str) -> [Post]:
+    with conn.cursor(cursor_factory=DictCursor) as cur:
+        query = """
+            SELECT p.id, p.title, p.slug, p.content, p.updated_at, p.posted_at, u.username author
+            FROM posts p
+            JOIN users u ON u.id = p.author
+            WHERE author=(SELECT id FROM users where username=%s)
+        """
+        cur.execute(query, (author, ))
+        row = cur.fetchall()
+
+    if row is None:
+        return []
+
+    return [Post(
+        id=post['id'],
+        title=post['title'],
+        slug=post['slug'],
+        author=post['author'],
+        content=post['content'],
+        posted_at=post['posted_at'],
+        updated_at=post['updated_at']
+    ) for post in row]
+
+
+def get_posts_by_tag(conn, tag: str) -> [Post]:
+    with conn.cursor(cursor_factory=DictCursor) as cur:
+        query = """
+            SELECT p.id, p.title, p.slug, u.username author, p.content, p.posted_at, p.updated_at
+            FROM posts_tags pt
+            JOIN tags t ON t.id = pt.tag_id
+            JOIN posts p ON p.id = pt.post_id
+            JOIN users u ON p.author = u.id
+            WHERE t.tag = %s
+        """
+        cur.execute(query, (tag, ))
+        row = cur.fetchall()
+
+    return [Post(
+        id=post['id'],
+        title=post['title'],
+        slug=post['slug'],
+        author=post['author'],
+        content=post['content'],
+        posted_at=post['posted_at'],
+        updated_at=post['updated_at']
+    ) for post in row]
