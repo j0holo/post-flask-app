@@ -41,6 +41,7 @@ def test_unsubscribe(conn):
         pytest.fail(e)
 
     subscription.unsubscribe(conn, user1.id, user2.id)
+    assert len(subscription.get_authors(conn, user1.id)) == 0
 
 def test_get_authors_and_posts(conn):
     user1 = user.User(0, "user1", "john@example.com", "")
@@ -99,3 +100,18 @@ def test_get_authors(conn):
     assert "user2" in authors
     assert "user3" in authors
     assert "user1" not in authors
+
+def test_get_authors_without_subscriptions(conn):
+    user1 = user.User(0, "user1", "john@example.com", "")
+
+    try:
+        user.create(conn, user1.username, user1.email, "password", "")
+        conn.commit()
+
+        authors = subscription.get_authors(conn, user1.id)
+    except DataError as e:
+        pytest.fail(e)
+    except DatabaseError as e:
+        pytest.fail(e)
+
+    assert len(authors) == 0
