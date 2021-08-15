@@ -1,6 +1,6 @@
 from typing import List
 from app.postgres import subscription
-from typing import List
+
 
 def subscribe(conn, user_id, author_id):
     subscription.subscribe(conn, user_id, author_id)
