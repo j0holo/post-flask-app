@@ -63,7 +63,7 @@ def test_update_post(conn):
     assert not new_post.content == old_post.content
 
 
-def test_search_posts_when_provide_username_and_all_return_posts_should_be_related_to_requested_author(conn):
+def test_get_posts_by_author(conn):
     username1 = 'cool_name_1'
     email1 = 'coolname1@gmail.com'
 
@@ -77,63 +77,20 @@ def test_search_posts_when_provide_username_and_all_return_posts_should_be_relat
         conn, username1, email1, password, password_repeat, profile_text)
     user.create(
         conn, username2, email2, password, password_repeat, profile_text)
+
     user1 = user.get_profile(conn, username1)
     user2 = user.get_profile(conn, username2)
 
-    random_title1 = 'title 1'
-    random_title2 = 'title 2'
-    random_title3 = 'title 3'
     random_content = 'content'
-    post1 = post_service.create(
-        conn, user1.id, random_title1, random_content)
-    post2 = post_service.create(
-        conn, user1.id, random_title2, random_content)
-    post3 = post_service.create(
-        conn, user2.id, random_title3, random_content)
+    post_service.create(conn, user1.id, 'title 1', random_content)
+    post_service.create(conn, user1.id, 'title 2', random_content)
+    post_service.create(conn, user2.id, 'title 3', random_content)
 
     posts = post_service.get_posts_by_author(conn, username1)
 
+    assert len(posts) == 2
     for post in posts:
         assert post.author == username1
-
-
-def test_if_total_posts_of_search_posts_when_provide_username_is_less_than_total_posts_exists_in_database(conn):
-    username1 = 'cool_name_1'
-    email1 = 'coolname1@gmail.com'
-
-    username2 = 'cool_name_2'
-    email2 = 'coolname2@gmail.com'
-
-    password = '123'
-    password_repeat = '123'
-    profile_text = 'this is some random profile text'
-    user.create(
-        conn, username1, email1, password, password_repeat, profile_text)
-    user.create(
-        conn, username2, email2, password, password_repeat, profile_text)
-
-    user1 = user.get_profile(conn, username1)
-    user2 = user.get_profile(conn, username2)
-
-    random_title1 = 'title 1'
-    random_title2 = 'title 2'
-    random_title3 = 'title 3'
-    random_content = 'content'
-    post1 = post_service.create(
-        conn, user1.id, random_title1, random_content)
-    post2 = post_service.create(
-        conn, user1.id, random_title2, random_content)
-    post3 = post_service.create(
-        conn, user2.id, random_title3, random_content)
-
-    posts = post_service.get_posts_by_author(conn, username1)
-
-    with conn.cursor(cursor_factory=DictCursor) as curs:
-        query = "SELECT * FROM posts"
-        curs.execute(query)
-        rows = curs.fetchall()
-
-    assert len(rows) > len(posts)
 
 
 def test_user_search_for_post_by_specifc_tag_then_return_posts_with_this_specifc_tag(conn):
