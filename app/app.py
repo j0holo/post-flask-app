@@ -1,8 +1,7 @@
 from dotenv import load_dotenv
 import os
 from flask import Flask
-from .routes import user
-feat/post-use-cases
+from .routes import user, post
 
 
 def create_app(test_config=None):
@@ -19,4 +18,5 @@ def create_app(test_config=None):
         pass
 
     app.register_blueprint(user.user_blueprint)
+    app.register_blueprint(post.post_blueprint)
     return app
