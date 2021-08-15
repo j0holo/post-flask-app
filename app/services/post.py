@@ -1,3 +1,4 @@
+from typing import List
 from psycopg2.extras import DictCursor
 from psycopg2.extensions import connection
 from app.exceptions import PostNotFoundError
@@ -49,7 +50,7 @@ def get_post_by_slug(conn: connection, username: str, slug: str):
         row['content']
     )
 
-def get_posts_by_author(conn, author: str) -> [Post]:
+def get_posts_by_author(conn, author: str) -> List[Post]:
     with conn.cursor(cursor_factory=DictCursor) as cur:
         query = """
             SELECT p.id, p.title, p.slug, p.content, p.updated_at, p.posted_at, u.username author
@@ -74,7 +75,7 @@ def get_posts_by_author(conn, author: str) -> [Post]:
     ) for post in row]
 
 
-def get_posts_by_tag(conn, tag: str) -> [Post]:
+def get_posts_by_tag(conn, tag: str) -> List[Post]:
     with conn.cursor(cursor_factory=DictCursor) as cur:
         query = """
             SELECT p.id, p.title, p.slug, u.username author, p.content, p.posted_at, p.updated_at
